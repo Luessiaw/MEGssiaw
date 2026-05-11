@@ -154,9 +154,13 @@ def computeLCurve(L:np.ndarray,B:np.ndarray,params:np.ndarray=None,C:np.ndarray=
     '''L curve 方法搜索最佳正则化参数。
     L: 导联场矩阵，(N,M) 数组
     B: 测量值，(N,) 数组
-    params: 待搜索的正则化参数，一维数组
+    params: 待搜索的正则化参数，(k,) 数组
     C: 探头通道的协方差，(N,N) 数组
     CQ: 源通道的协方差，(M,M) 数组
+    
+    return: (normQ, normResidual)
+    normQ: 与 param 对应的 Q 的模，(k,) 数组
+    normResidual: 与 param 对应的残差的模，(k,) 数组
     '''
     if params is None:
         params = np.array([10**p for p in range(-5,2)])
