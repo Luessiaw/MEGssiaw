@@ -38,8 +38,8 @@ B0 = L0 @ Q0
 B = B0 + np.random.randn()*100e-15 # 添加噪声
 
 L = computeLeadFieldMatrix(rps,nps,rss,nss)
-params_exp = np.arange(-5,2,0.5)
-params = np.array([10**p for p in params_exp])
+params_exp = np.arange(-5,1,0.5)
+params = np.array([10**float(p) for p in params_exp])
 
 normQ, normResidual = computeLCurve(L,B,params)
 
