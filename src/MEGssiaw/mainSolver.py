@@ -16,6 +16,8 @@ def computeLeadFieldMatrix(sourcePositions:np.ndarray,
     sensorPositions: (n,3) 数组，表示探头通道空间中各探头通道的位置。
     sensorOrientations: (n,3) 数组，表示各探头通道的方向。
     注意，所有参数均以通道为单位，而非以源或探头位置。即若一个源或探头处包含多个通道，则视为多个源或探头。
+    return:
+    L: 前向矩阵，(n,m) 数组
     '''
 
     sp = sourcePositions.shape
@@ -114,13 +116,16 @@ def computeInverseOperator(L:np.ndarray,regular_param=1e-5,C:np.ndarray=None,CQ:
     C: 探头通道的协方差，(N,N) 数组
     CQ: 源通道的协方差，(M,M) 数组
     regular_param: 正则化参数
+    
+    return 
+    W: 逆矩阵，(M,N) 数组
     '''
     N,M = L.shape
     if C is None:
         C = np.eye(N,N)
     if CQ is None:
         CQ = np.eye(M,M)
-        
+
     if C.shape[0] != C.shape[1]:
         raise MEGssiawError("矩阵 C 不是方阵。当前 C 的形状：", C.shape)
     if CQ.shape[0] != CQ.shape[1]:
@@ -144,3 +149,25 @@ def computeLocRes(rps:np.ndarray,powers:np.ndarray,threshold=0.5):
     locPos = np.einsum("ij,i->j",rps,powers)
 
     return locPos
+
+def computeLCurve(L:np.ndarray,B:np.ndarray,params:np.ndarray=None,C:np.ndarray=None,CQ:np.ndarray=None):
+    '''L curve 方法搜索最佳正则化参数。
+    L: 导联场矩阵，(N,M) 数组
+    B: 测量值，(N,) 数组
+    params: 待搜索的正则化参数，一维数组
+    C: 探头通道的协方差，(N,N) 数组
+    CQ: 源通道的协方差，(M,M) 数组
+    '''
+    if params is None:
+        params = np.array([10**p for p in range(-5,2)])
+
+    normQ = np.zeros(params.shape)
+    normResidual = np.zeros(params.shape)
+    for k,param in enumerate(params):
+        W = computeInverseOperator(L,param,C,CQ)
+        Q = W @ B
+        residual = L @ Q - B
+        normQ[k] = np.linalg.norm(Q)
+        normResidual[k] = np.linalg.norm(residual)
+    
+    return normQ,normResidual
