@@ -3,7 +3,6 @@ import time
 from functools import wraps
 
 
-
 def print_runtime(func):
     """打印函数运行时间的装饰器（仅支持同步函数）"""
     @wraps(func)

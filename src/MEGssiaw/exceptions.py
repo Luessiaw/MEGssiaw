@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-class LuessiawMNEError(Exception):
+class MEGssiawError(Exception):
     """
     Base exception for LuessiawMNE.
     """
